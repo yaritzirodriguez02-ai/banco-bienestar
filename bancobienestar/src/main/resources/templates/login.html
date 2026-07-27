@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Banco Bienestar - Iniciar sesión</title>
+    
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <!-- Iconos de Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome para iconos adicionales -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    
+    <!-- Estilos propios del proyecto -->
+    <link rel="stylesheet" th:href="@{/css/estilos.css}" />
+
+    <!-- Google Fonts: Tipografía corporativa limpia -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      :root {
+        --bg-gradient-login: linear-gradient(135deg, #1A0F29 0%, #0F071A 100%);
+        --brand-dark: #221533;
+        --brand-accent: #E0A899;
+        --border-color: #E2E8F0;
+        --text-main: #1A1C24;
+      }
+
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        background: var(--bg-gradient-login);
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* Tarjeta de login estilizada */
+      .card-login-premium {
+        background-color: #FFFFFF;
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        padding: 40px 30px !important;
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .login-title {
+        color: var(--brand-dark);
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      /* Contenedores de Inputs con Iconos */
+      .input-group-bank {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .input-icon-bank {
+        position: absolute;
+        left: 14px;
+        color: #94A3B8;
+        z-index: 10;
+        font-size: 14px;
+      }
+      .form-control-bank {
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 12px 14px 12px 40px;
+        font-size: 15px;
+        width: 100%;
+        transition: all 0.2s ease;
+        background-color: #F8FAFC;
+      }
+      .form-control-bank:focus {
+        border-color: var(--brand-accent);
+        background-color: #FFFFFF;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(224, 168, 153, 0.2);
+      }
+
+      /* Alertas de autenticación refinadas */
+      .alert-custom-success {
+        background-color: #ECFDF5;
+        border: 1px solid #A7F3D0;
+        color: #065F46;
+        border-radius: 10px;
+        font-size: 13.5px;
+      }
+      .alert-custom-danger {
+        background-color: #FEF2F2;
+        border: 1px solid #FCA5A5;
+        color: #991B1B;
+        border-radius: 10px;
+        font-size: 13.5px;
+      }
+
+      /* Botón de ingreso premium */
+      .btn-login-premium {
+        background-color: var(--brand-dark);
+        color: #FFFFFF;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s ease;
+      }
+      .btn-login-premium:hover {
+        background-color: #331F4D;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(34, 21, 51, 0.2);
+      }
+
+      .link-forgot {
+        color: var(--brand-dark);
+        font-weight: 500;
+        font-size: 13px;
+        transition: color 0.2s ease;
+      }
+      .link-forgot:hover {
+        color: var(--brand-accent);
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="card card-login-premium mx-3">
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2" style="width: 60px; height: 60px; background-color: var(--brand-accent-light);">
+          <i class="bi bi-bank2 fs-2" style="color: var(--brand-dark)"></i>
+        </div>
+        <h1 class="h4 login-title mt-2">TuBanquito<span style="color: var(--brand-accent);">Plus</span></h1>
+        <p class="text-muted small mb-0">Banco • Bienestar</p>
+      </div>
+
+      <!-- ALERTAS DE LOGIN -->
+      <div class="alert alert-custom-danger d-flex align-items-center gap-2 mb-3 p-3" th:if="${error}" th:text="${error}"></div>
+
+      <div
+        th:if="${param.error}"
+        class="alert alert-custom-danger d-flex align-items-center gap-2 mb-3 p-3"
+      >
+        <i class="fa-solid fa-circle-exclamation fs-5"></i>
+        <div>Usuario o contraseña incorrectos.</div>
+      </div>
+      
+      <div
+        th:if="${param.logout}"
+        class="alert alert-custom-success d-flex align-items-center gap-2 mb-3 p-3"
+      >
+        <i class="fa-solid fa-circle-check fs-5"></i>
+        <div>Has cerrado sesión correctamente.</div>
+      </div>
+
+      <!-- FORMULARIO DE AUTENTICACIÓN -->
+      <form th:action="@{/login}" method="POST" class="needs-validation">
+        <div class="mb-3">
+          <label for="userName" class="form-label small fw-medium text-secondary mb-2">Nombre de Usuario</label>
+          <div class="input-group-bank">
+            <span class="input-icon-bank"><i class="fa-solid fa-user"></i></span>
+            <input
+              type="text"
+              id="userName"
+              name="userName"
+              class="form-control form-control-bank"
+              placeholder="Ingresa tu usuario"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label small fw-medium text-secondary mb-2">Contraseña</label>
+          <div class="input-group-bank">
+            <span class="input-icon-bank"><i class="fa-solid fa-lock"></i></span>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control form-control-bank"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login-premium w-100 shadow-sm">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <a href="#" class="link-forgot text-decoration-none">
+          ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

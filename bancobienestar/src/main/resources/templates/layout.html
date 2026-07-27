@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">Banco Nacional</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Iconos de Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- JS de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+      :root {
+        --bg-primary: #FAFAFB;
+        --brand-dark: #221533;
+        --brand-accent: #E0A899;
+        --brand-accent-hover: #D49688;
+        --success-premium: #10B981;
+      }
+
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        background-color: var(--bg-primary);
+        color: #1A1C24;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .security-bar {
+        background-color: #170C24 !important;
+        font-size: 12px;
+      }
+
+      .navbar-bank {
+        background-color: var(--brand-dark) !important;
+        padding: 15px 0;
+      }
+
+      .navbar-bank .nav-link {
+        color: #CBD5E1 !important;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 16px !important;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .navbar-bank .nav-link:hover {
+        color: var(--brand-accent) !important;
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+
+      .user-badge-premium {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #FFFFFF;
+        padding: 6px 16px;
+      }
+
+      .badge-role-premium {
+        background-color: var(--brand-accent) !important;
+        color: var(--brand-dark) !important;
+        font-weight: 600;
+      }
+
+      .btn-logout-premium {
+        color: #F1F5F9;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: transparent;
+      }
+
+      .btn-logout-premium:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+        border-color: #EF4444;
+        color: #FCA5A5;
+      }
+
+      main.container {
+        padding-top: 40px;
+        padding-bottom: 60px;
+      }
+
+      .bank-footer {
+        background-color: #170C24 !important;
+        color: #F8FAFC;
+        padding: 40px 24px 25px 24px;
+        font-size: 13px;
+        border-top: 3px solid var(--brand-accent);
+        margin-top: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Barra de seguridad superior -->
+    <div class="security-bar text-light py-2">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex gap-3 align-items-center">
+            <span style="color: var(--success-premium); font-weight: 500;">
+              <i class="bi bi-shield-lock-fill"></i> Conexión Segura
+            </span>
+            <span class="text-white-50 d-none d-sm-inline">|</span>
+            <span class="text-white-50 d-none d-sm-inline">
+              <i class="bi bi-bell-fill"></i> Alertas activadas
+            </span>
+          </div>
+          <div class="text-white-50"><i class="bi bi-telephone-fill"></i> 01-800-BANCO</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navbar principal -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-bank sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold fs-4 text-white" th:href="@{/admin/dashboard}">
+          <i class="bi bi-bank2" style="color: var(--brand-accent);"></i> TuBanquito<span style="color: var(--brand-accent);">Plus</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarBanco">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarBanco">
+          <ul class="navbar-nav mx-auto">
+            <!-- Menú Cliente -->
+            <li class="nav-item" sec:authorize="hasRole('CLIENTE')">
+              <a class="nav-link" th:href="@{/dashboard}"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('CLIENTE')">
+              <a class="nav-link" th:href="@{/transferencias}"><i class="bi bi-arrow-left-right me-1"></i> Transferir</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('CLIENTE')">
+              <a class="nav-link" th:href="@{/credito}"><i class="bi bi-cash-coin me-1"></i> Solicitar Crédito</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('CLIENTE')">
+              <a class="nav-link" th:href="@{/perfil/cliente}"><i class="bi bi-person-bounding-box me-1"></i> Perfil</a>
+            </li>
+
+            <!-- Menú Ejecutivo -->
+            <li class="nav-item" sec:authorize="hasRole('EJECUTIVO')">
+              <a class="nav-link" th:href="@{/admin/dashboard}"><i class="bi bi-bar-chart-line me-1"></i> Panel Ejecutivo</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('EJECUTIVO')">
+              <a class="nav-link" th:href="@{/admin/clientes}"><i class="bi bi-people me-1"></i> Clientes Registrados</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('EJECUTIVO')">
+              <a class="nav-link" th:href="@{/admin/creditos}"><i class="bi bi-card-checklist me-1"></i> Solicitudes de Créditos</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('EJECUTIVO')">
+              <a class="nav-link" th:href="@{/admin/movimientos}"><i class="bi bi-journal-text me-1"></i> Movimientos</a>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('EJECUTIVO')">
+              <a class="nav-link" th:href="@{/perfil/ejecutivo}"><i class="bi bi-person-bounding-box me-1"></i> Perfil</a>
+            </li>
+          </ul>
+
+          <div class="d-flex align-items-center gap-3">
+            <div class="user-badge-premium rounded-pill d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-user" style="color: var(--brand-accent);"></i>
+              <span class="small fw-semibold" sec:authentication="name">Usuario</span>
+              <span class="badge badge-role-premium rounded-pill text-uppercase" style="font-size: 0.65rem" sec:authorize="hasRole('EJECUTIVO')">Ejecutivo</span>
+              <span class="badge badge-role-premium rounded-pill text-uppercase" style="font-size: 0.65rem" sec:authorize="hasRole('CLIENTE')">Cliente</span>
+            </div>
+            
+            <form th:action="@{/logout}" method="post" class="m-0">
+              <button type="submit" class="btn btn-logout-premium btn-sm rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-1">
+                <i class="fa-solid fa-right-from-bracket"></i>Salir
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container">
+      <div th:replace="${content}"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bank-footer">
+      <div class="container text-center text-md-start">
+        <div class="row gy-4">
+          <div class="col-12 col-md-4">
+            <span class="fs-5 fw-bold text-white d-block mb-2">
+              <i class="bi bi-bank2"></i> TuBanquito<span style="color: var(--brand-accent);">Plus</span>
+            </span>
+            <p class="text-secondary small mb-0">Seguridad y solidez financiera con el respaldo que mereces.</p>
+          </div>
+          <div class="col-6 col-md-4">
+            <h6 class="text-uppercase fw-bold mb-3" style="color: var(--brand-accent);">Atención al Usuario</h6>
+            <p class="small text-secondary mb-1">Centro de Ayuda</p>
+            <p class="small text-secondary mb-0">Canales de Seguridad</p>
+          </div>
+          <div class="col-6 col-md-4">
+            <h6 class="text-uppercase fw-bold mb-3" style="color: var(--brand-accent);">Legal</h6>
+            <p class="small text-secondary mb-1">Aviso de Privacidad</p>
+            <p class="small text-secondary mb-0">Términos y Condiciones</p>
+          </div>
+        </div>
+        <hr class="my-4 border-secondary opacity-25">
+        <p class="small text-secondary text-center mb-0">© 2026 FinanzasPlus S.A. Todos los derechos reservados.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </body>
+</html>

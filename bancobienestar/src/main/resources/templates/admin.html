@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Panel Ejecutivo', ~{::section})}">
+
+<body>
+    <section>
+        <!-- Alerts de Error o Éxito -->
+        <div th:if="${param.error}" class="alert alert-danger d-flex align-items-center gap-2 mb-4 rounded-3 shadow-sm" role="alert">
+            <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+            <div th:text="${param.error}">Error en la solicitud.</div>
+        </div>
+
+        <div th:if="${param.exito}" class="alert alert-success d-flex align-items-center gap-2 mb-4 rounded-3 shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-check fs-5"></i>
+            <div th:text="${param.exito}">Operación completada con éxito.</div>
+        </div>
+
+        <!-- Título General -->
+        <div class="mb-4">
+            <h2 class="display-6 fw-bold text-dark mb-1">
+                <i class="fa-solid fa-user-shield text-primary me-2"></i>
+                <span th:if="${seccion == 'todo'}">Panel Ejecutivo de Administración</span>
+                <span th:if="${seccion == 'clientes'}">Cartera de Clientes Registrados</span>
+                <span th:if="${seccion == 'creditos'}">Gestión de Solicitudes de Crédito</span>
+            </h2>
+            <p class="text-secondary">Bienvenido al área de gestión y administración de la banca.</p>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECCIÓN 1: SECCIÓN DE CLIENTES Y REGISTRO -->
+        <!-- ========================================== -->
+        <div th:if="${seccion == 'todo' || seccion == 'clientes'}">
+            
+            <!-- Formulario de Crear Cliente (Solo en el Dashboard General) -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-5" th:if="${seccion == 'todo'}">
+                <h3 class="h5 fw-bold mb-4" style="color: var(--brand-dark);">
+                    <i class="bi bi-person-plus-fill me-2" style="color: var(--brand-accent);"></i>Registrar Nuevo Cliente
+                </h3>
+                <form th:action="@{/admin/crear-cliente}" method="post" class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small mb-1">Nombre Completo</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej. Juan Pérez" required />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small mb-1">Nombre de Usuario</label>
+                        <input type="text" name="username" class="form-control" placeholder="Ej. jperez" required />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small mb-1">Contraseña</label>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small mb-1">Saldo Inicial ($)</label>
+                        <input type="number" name="saldoInicial" step="0.01" min="0.01" class="form-control" placeholder="1000.00" required />
+                    </div>
+                    <div class="col-12 mt-4 text-end">
+                        <button type="submit" class="btn text-white fw-bold px-4 shadow-sm" style="background-color: var(--brand-dark);">Crear Cuenta de Cliente</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla de Clientes Registrados -->
+            <div class="bg-white rounded-4 shadow-sm p-4 border mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="h5 fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-people-fill text-primary"></i> Clientes Registrados
+                    </h3>
+                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3" th:text="${#lists.size(clientes)} + ' Clientes'">0 Clientes</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center">ID</th>
+                                <th class="text-center">Nombre</th>
+                                <th class="text-center">Usuario</th>
+                                <th class="text-center">Perfil</th>
+                                <th class="text-center">CLABE</th>
+                                <th class="text-center">Saldo</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cliente : ${clientes}">
+                                <td class="text-center text-secondary fw-semibold" th:text="${cliente.id}">1</td>
+                                <td class="text-center fw-medium text-dark" th:text="${cliente.nombre}">Nombre Completo</td>
+                                <td class="text-center text-secondary" th:text="${cliente.userName}">usuario</td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1" style="font-size: 11px;">CLIENTE</span>
+                                </td>
+                                <td class="text-center font-monospace text-secondary" style="font-size: 13px;" 
+                                    th:text="${!#lists.isEmpty(cliente.cuentas)} ? ${cliente.cuentas[0].clabe} : '-'">000000000000000000</td>
+                                <td class="text-center fw-bold text-dark" 
+                                    th:text="${!#lists.isEmpty(cliente.cuentas)} ? ${'$' + #numbers.formatDecimal(cliente.cuentas[0].saldo, 1, 'COMMA', 2, 'POINT')} : '-'">$0.00</td>
+                                
+                                <td class="text-center">
+                                    <span th:if="${!#lists.isEmpty(cliente.cuentas)}" 
+                                          th:classappend="${cliente.cuentas[0].estado == 'ACTIVA'} ? 'bg-success' : 'bg-warning text-dark'"
+                                          th:text="${cliente.cuentas[0].estado != null ? cliente.cuentas[0].estado : 'ACTIVA'}"
+                                          class="badge rounded-pill text-uppercase px-3 py-1">ACTIVA</span>
+                                    <span th:if="${#lists.isEmpty(cliente.cuentas)}" class="text-muted">—</span>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <form th:if="${#lists.isEmpty(cliente.cuentas) || cliente.cuentas[0].estado != 'ACTIVA'}"
+                                              th:action="@{/admin/clientes/actualizar-estado}" method="post" class="m-0">
+                                            <input type="hidden" name="id" th:value="${cliente.id}" />
+                                            <input type="hidden" name="estado" value="ACTIVA" />
+                                            <button type="submit" class="btn btn-success btn-sm rounded shadow-sm" title="Activar Cuenta">
+                                                <i class="fa-solid fa-check"></i>
+                                            </button>
+                                        </form>
+
+                                        <form th:if="${!#lists.isEmpty(cliente.cuentas) && cliente.cuentas[0].estado == 'ACTIVA'}"
+                                              th:action="@{/admin/clientes/actualizar-estado}" method="post" class="m-0">
+                                            <input type="hidden" name="id" th:value="${cliente.id}" />
+                                            <input type="hidden" name="estado" value="SUSPENDIDA" />
+                                            <button type="submit" class="btn btn-warning btn-sm rounded shadow-sm" title="Suspender Cuenta">
+                                                <i class="fa-solid fa-ban"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- BOTÓN PARA ABRIR EL MODAL DE EDICIÓN DEL CLIENTE -->
+                                        <button type="button" class="btn btn-primary btn-sm rounded shadow-sm" 
+                                                title="Editar Cliente"
+                                                data-bs-toggle="modal" 
+                                                th:data-bs-target="'#modalEditarCliente' + ${cliente.id}">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+
+                                        <form th:action="@{/admin/clientes/eliminar}" method="post" class="m-0"
+                                              onsubmit="return confirm('¿Estás segura de eliminar este cliente?');">
+                                            <input type="hidden" name="id" th:value="${cliente.id}" />
+                                            <button type="submit" class="btn btn-danger btn-sm rounded shadow-sm" title="Eliminar Cliente">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- MODAL EDITAR CLIENTE COMPLETO -->
+                                    <div class="modal fade" th:id="'modalEditarCliente' + ${cliente.id}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content text-start border-0 shadow rounded-4">
+                                                <div class="modal-header border-bottom-0 pb-0">
+                                                    <h5 class="modal-title fw-bold text-dark">
+                                                        <i class="fa-solid fa-user-pen text-primary me-2"></i>Editar Cliente
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form th:action="@{/admin/clientes/editar}" method="post">
+                                                    <div class="modal-body py-3">
+                                                        <input type="hidden" name="id" th:value="${cliente.id}" />
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-semibold small mb-1">Nombre Completo</label>
+                                                            <input type="text" name="nombre" class="form-control" th:value="${cliente.nombre}" required />
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-semibold small mb-1">Nombre de Usuario</label>
+                                                            <input type="text" name="username" class="form-control" th:value="${cliente.userName}" required />
+                                                        </div>
+                                                        
+                                                        <div class="mb-3" th:if="${!#lists.isEmpty(cliente.cuentas)}">
+                                                            <label class="form-label fw-semibold small mb-1">Número CLABE</label>
+                                                            <input type="text" name="clabe" class="form-control font-monospace" th:value="${cliente.cuentas[0].clabe}" required />
+                                                        </div>
+                                                        
+                                                        <div class="mb-3" th:if="${!#lists.isEmpty(cliente.cuentas)}">
+                                                            <label class="form-label fw-semibold small mb-1">Saldo de la Cuenta ($)</label>
+                                                            <input type="number" step="0.01" name="saldo" class="form-control fw-bold text-success" th:value="${cliente.cuentas[0].saldo}" required />
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-top-0 pt-0">
+                                                        <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-primary px-4 fw-bold">Guardar Cambios</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- FIN MODAL EDITAR CLIENTE -->
+
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(clientes)}">
+                                <td class="text-center text-muted py-4" colspan="8">Aún no hay clientes registrados en el sistema.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECCIÓN 2: SECCIÓN DE CRÉDITOS            -->
+        <!-- ========================================== -->
+        <div th:if="${seccion == 'todo' || seccion == 'creditos'}">
+            <div class="bg-white rounded-4 shadow-sm p-4 border mb-4">
+                <div class="d-flex align-items-center mb-4">
+                    <h3 class="h5 fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                        <span class="badge bg-warning-subtle text-warning p-2 rounded-3">
+                            <i class="bi bi-card-checklist fs-6"></i>
+                        </span>
+                        Solicitudes de Créditos
+                    </h3>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="text-center py-3">ID</th>
+                                <th scope="col" class="text-center py-3">Cliente</th>
+                                <th scope="col" class="text-center py-3">Monto Solicitado</th>
+                                <th scope="col" class="text-center py-3">Firma Digital</th>
+                                <th scope="col" class="text-center py-3">Estado</th>
+                                <th scope="col" class="text-center py-3">Fecha</th>
+                                <th scope="col" class="text-center py-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="solicitud : ${solicitudes}">
+                                <td class="text-center text-secondary fw-normal" th:text="${solicitud.id}">12</td>
+                                <td class="text-center fw-bold text-dark" th:text="${solicitud.usuario.userName}">picapiedra</td>
+                                <td class="text-center fw-bold text-dark fs-6" 
+                                    th:text="${'$' + #numbers.formatDecimal(solicitud.montoSolicitado, 1, 'COMMA', 2, 'POINT')}">$6,500.00</td>
+                                <td class="text-center">
+                                    <div class="border rounded px-2 py-1 bg-light d-inline-block" style="min-width: 60px;">
+                                        <img th:if="${solicitud.firmaBase64}" th:src="${solicitud.firmaBase64}" alt="Firma" 
+                                             class="img-fluid" style="max-height: 25px; object-fit: contain;">
+                                        <span th:unless="${solicitud.firmaBase64}" class="text-muted small">—</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill text-uppercase px-3 py-1.5 fw-semibold"
+                                          style="font-size: 11px;"
+                                          th:classappend="${solicitud.estado == 'APROBADO'} ? 'bg-success' : (${solicitud.estado == 'RECHAZADO'} ? 'bg-danger' : 'bg-warning text-dark')"
+                                          th:text="${solicitud.estado}">PENDIENTE</span>
+                                </td>
+                                <td class="text-center text-secondary small">
+                                    <div th:text="${#temporals.format(solicitud.fecha, 'dd/MM/yyyy')}">22/07/2026</div>
+                                    <div th:text="${#temporals.format(solicitud.fecha, 'HH:mm')}" class="text-muted" style="font-size: 11px;">10:16</div>
+                                </td>
+                                <td class="text-center">
+                                    <div th:if="${solicitud.estado == 'PENDIENTE'}" class="d-flex gap-2 justify-content-center">
+                                        <form th:action="@{/admin/aprobar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
+                                            <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
+                                                <i class="fa-solid fa-check"></i> Aprobar
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/admin/rechazar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
+                                            <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
+                                                <i class="fa-solid fa-xmark"></i> Rechazar
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <span th:if="${solicitud.estado != 'PENDIENTE'}" class="text-muted">—</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(solicitudes)}">
+                                <td class="text-center text-muted py-4" colspan="7">Aún no hay solicitudes de crédito registradas.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</body>
+</html>

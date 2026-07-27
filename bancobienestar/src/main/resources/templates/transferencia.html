@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+th:replace="~{layout :: layout('Nueva Transferencia', ~{::section})}">
+
+<body>
+<section>
+    <!-- Estilos específicos de componentes de Transferencia Premium -->
+    <style>
+        .premium-heading {
+            color: var(--brand-dark);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .card-premium-bank {
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+        
+        /* Alertas personalizadas refinadas */
+        .alert-custom-danger {
+            background-color: #FEF2F2;
+            border: 1px solid #FCA5A5;
+            color: #991B1B;
+            border-radius: 12px;
+        }
+
+        /* Estilización de campos de formulario */
+        .form-label-bank {
+          font-size: 13.5px;
+          font-weight: 500;
+          color: var(--text-muted);
+        }
+        .form-control-bank, .form-select-bank {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+            background-color: #F8FAFC;
+        }
+        .form-control-bank:focus, .form-select-bank:focus {
+            border-color: var(--brand-accent);
+            background-color: #FFFFFF;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(224, 168, 153, 0.2);
+        }
+        .form-control-display-only {
+          background-color: var(--brand-accent-light);
+          border: 1px dashed var(--brand-accent);
+          color: var(--brand-dark);
+          font-weight: 700;
+          font-size: 16px;
+          border-radius: 10px;
+          padding: 11px 14px;
+        }
+
+        /* Botón de envío */
+        .btn-submit-bank {
+            background-color: var(--brand-dark);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 50px;
+            padding: 14px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+        }
+        .btn-submit-bank:hover {
+            background-color: #331F4D;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 21, 51, 0.15);
+        }
+
+        /* Tablas de movimientos */
+        .table-transferencia {
+          font-size: 14px;
+        }
+        .table-transferencia thead th {
+          background-color: var(--brand-accent-light) !important;
+          color: var(--brand-dark);
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 11px;
+          letter-spacing: 0.5px;
+          border-bottom: 2px solid var(--border-color) !important;
+          padding: 12px;
+        }
+        .table-transferencia tbody td {
+          padding: 14px 12px;
+          border-bottom: 1px solid var(--border-color);
+        }
+        
+        .badge-status-transferencia {
+          padding: 5px 10px;
+          font-weight: 600;
+          font-size: 11px;
+          border-radius: 50px;
+          display: inline-block;
+        }
+        .status-completed {
+          background-color: #D1FAE5 !important;
+          color: #065F46 !important;
+        }
+        .status-pending {
+          background-color: #FEF3C7 !important;
+          color: #92400E !important;
+        }
+    </style>
+
+    <!-- Bienvenida -->
+    <div class="mb-4 mt-3">
+        <h2 class="display-6 premium-heading mb-1">
+            <i class="fa-solid fa-paper-plane me-2" style="color: var(--brand-accent);"></i>Nueva Transferencia
+        </h2>
+        <p class="text-muted mb-0" style="font-size: 14px;">Envía dinero de forma segura e inmediata a cualquier cuenta CLABE nacional.</p>
+    </div>
+
+    <!-- Alert de Error en Operación -->
+    <div th:if="${param.error}" class="alert alert-custom-danger d-flex align-items-center gap-2 mb-4 p-3 shadow-sm" role="alert">
+        <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+        <div th:text="${param.error}" class="fw-medium">Error en la operación.</div>
+    </div>
+ 
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <div class="card card-premium-bank shadow-sm p-4 h-100">
+          <h3 class="h5 fw-bold mb-4" style="color: var(--brand-dark);">Datos de transferencia</h3>
+
+          <form th:action="@{/procesar-transferencia}" method="post" class="row g-3">
+            <div class="col-12">
+              <label class="form-label form-label-bank mb-2">Cuenta de origen</label>
+              <select name="cuentaOrigen" class="form-select-bank" required>
+                <option th:text="${cuentaClabe}" th:value="${cuentaClabe}">Selecciona tu cuenta</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label form-label-bank mb-2">Saldo disponible</label>
+              <div class="form-control-display-only">
+                $<span th:text="${#numbers.formatDecimal(saldoTotal, 1, 'COMMA', 2, 'POINT')}">0.00</span> <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">MXN</span>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label form-label-bank mb-2">Cuenta CLABE destino</label>
+              <input type="text" id="cuentaDestino" name="cuentaDestino" class="form-control-bank" placeholder="Ej. 012345678901234567" required />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label form-label-bank mb-2">Monto a transferir</label>
+              <input type="number" name="monto" id="monto" step="0.01" min="0.01" class="form-control-bank fw-bold" placeholder="0.00" required />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label form-label-bank mb-2">Descripción / Concepto</label>
+              <input type="text" id="descripcion" name="descripcion" class="form-control-bank" placeholder="Ej. Pago de servicios" required />
+            </div>
+
+            <div class="col-12 mt-4">
+              <button type="submit" class="btn btn-submit-bank w-100 shadow-sm">Enviar transferencia</button>
+            </div>
+          </form>
+        </div>
+      </div>
+<div class="col-12 col-lg-6 mt-4 mt-lg-0">
+  <div class="card card-premium-bank shadow-sm p-4">
+    <h3 class="h5 fw-bold mb-4" style="color: var(--brand-dark);">
+      <i class="fa-solid fa-wallet me-2" style="color: var(--brand-accent);"></i>Realizar Depósito rápido
+    </h3>
+    <form th:action="@{/procesar-deposito}" method="post" class="row g-3">
+      <div class="col-12">
+        <label class="form-label form-label-bank mb-2">Monto a depositar ($)</label>
+        <input type="number" name="monto" step="0.01" min="0.01" class="form-control-bank fw-bold" placeholder="0.00" required />
+      </div>
+      <div class="col-12">
+        <label class="form-label form-label-bank mb-2">Concepto de depósito</label>
+        <input type="text" name="descripcion" class="form-control-bank" placeholder="Ej. Abono en efectivo" required />
+      </div>
+      <div class="col-12 mt-4">
+        <button type="submit" class="btn btn-submit-bank w-100 shadow-sm" style="background-color: #10B981;">Ejecutar Depósito</button>
+      </div>
+    </form>
+  </div>
+</div>
+      <div class="col-12 col-lg-6">
+        <div class="card card-premium-bank shadow-sm p-4 h-100">
+          <h3 class="h5 fw-bold mb-4" style="color: var(--brand-dark);"><i class="fa-solid fa-list-ul me-2" style="color: var(--brand-accent);"></i>Movimientos recientes</h3>
+
+          <div class="table-responsive" style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+            <table class="table table-hover table-transferencia align-middle mb-0">
+              <thead>
+                <tr>
+                  <th class="text-center">Fecha</th>
+                  <th class="text-center">Descripción</th>
+                  <th class="text-center">Monto</th>
+                  <th class="text-center">Tipo</th>
+                  <th class="text-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="movimiento : ${movimientos}">
+                  <td class="text-center text-secondary" style="font-size: 13px;" th:text="${movimiento.fecha}">01/01/2026</td>
+                  <td class="text-center fw-medium" th:text="${movimiento.descripcion}">Concepto de la operación</td>
+                  <td class="text-center fw-bold" 
+                      th:classappend="${movimiento.cuentaOrigen == cuentaClabe} ? 'text-danger' : 'text-success'"
+                      th:text="${(movimiento.cuentaOrigen == cuentaClabe ? '-$' : '+$') + #numbers.formatDecimal(movimiento.monto, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                  <td class="text-center text-secondary" th:text="${movimiento.tipo}">Transferencia</td>
+                  <td class="text-center">
+                    <span class="badge-status-transferencia"
+                          th:text="${movimiento.estadoMovimiento}"
+                          th:classappend="${movimiento.estadoMovimiento == 'COMPLETADO' || movimiento.estadoMovimiento == 'LIQUIDADO'} ? 'status-completed' : 'status-pending'">
+                      PENDIENTE
+                    </span>
+                  </td>
+                </tr>
+                <tr th:if="${movimientos == null or #lists.isEmpty(movimientos)}">
+                  <td class="text-center text-muted py-4" colspan="5">No hay movimientos recientes para mostrar.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</section>
+</body>
+</html>

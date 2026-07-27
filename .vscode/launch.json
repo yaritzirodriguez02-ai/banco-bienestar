@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BancobienestarApplication<bancobienestar>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.yrs.bancobienestar.BancobienestarApplication",
+            "projectName": "bancobienestar",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

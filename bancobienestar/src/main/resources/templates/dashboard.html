@@ -1,0 +1,298 @@
+<!Doctype html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{layout :: layout(title='Dashboard', content=~{::section})} "
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <section>
+      <!-- Alerts de Error o Éxito -->
+      <div th:if="${param.error}" class="alert alert-danger d-flex align-items-center gap-2 mb-4 rounded-3 shadow-sm" role="alert">
+          <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+          <div th:text="${param.error}">Error en la solicitud.</div>
+      </div>
+
+      <div th:if="${param.exito}" class="alert alert-success d-flex align-items-center gap-2 mb-4 rounded-3 shadow-sm" role="alert">
+          <i class="fa-solid fa-circle-check fs-5"></i>
+          <div th:text="${param.exito}">Operación completada con éxito.</div>
+      </div>
+
+      <!-- Estilos específicos de componentes del Dashboard del Cliente -->
+      <style>
+        .dashboard-welcome {
+          color: var(--brand-dark);
+          letter-spacing: -0.5px;
+        }
+        
+        /* Tarjeta de Balance / Cuenta de Débito */
+        .card-balance-premium {
+          background: linear-gradient(135deg, #221533 0%, #150B22 100%);
+          border: none;
+          border-radius: 16px;
+          border-left: 4px solid var(--brand-accent);
+        }
+        .balance-amount {
+          color: #FFFFFF;
+          font-weight: 700;
+          letter-spacing: -1px;
+        }
+
+        /* Contenedores de Tablas y Gráficas */
+        .section-card-premium {
+          background-color: var(--bg-white);
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+        }
+
+        /* Tablas de movimientos bancarios */
+        .table-dashboard {
+          font-size: 14px;
+        }
+        .table-dashboard thead th {
+          background-color: var(--brand-accent-light) !important;
+          color: var(--brand-dark);
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 11px;
+          letter-spacing: 0.5px;
+          border-bottom: 2px solid var(--border-color) !important;
+          padding: 12px;
+        }
+        .table-dashboard tbody td {
+          padding: 14px 12px;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Insignias de estados de transacciones */
+        .badge-status-dashboard {
+          padding: 5px 10px;
+          font-weight: 600;
+          font-size: 11px;
+          border-radius: 50px;
+          display: inline-block;
+        }
+        .status-completed {
+          background-color: #D1FAE5 !important;
+          color: #065F46 !important;
+        }
+        .status-pending {
+          background-color: #FEF3C7 !important;
+          color: #92400E !important;
+        }
+      </style>
+
+      <div class="section-card-premium shadow-sm p-4 p-md-5">
+        <!-- Saludo Personalizado y Acciones Principales -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+          <h2 class="h3 dashboard-welcome fw-light m-0">
+            Bienvenido de nuevo,
+            <span class="fw-bold" style="color: var(--brand-dark);" th:text="${nombreCliente}">Usuario</span>
+          </h2>
+          
+          <div class="d-flex gap-2">
+            <!-- Botón PDF Estado de Cuenta -->
+            <a href="/pdf/historial-cliente" target="_blank" class="btn btn-outline-danger fw-semibold d-flex align-items-center gap-2 shadow-sm" style="border-radius: 10px;">
+                <i class="fa-solid fa-file-pdf fs-5"></i> Descargar PDF
+            </a>
+
+            <!-- Botón Registrar Gasto Propio -->
+            <button class="btn text-white fw-bold d-flex align-items-center gap-2 shadow-sm" 
+                    style="background-color: var(--brand-dark); border-radius: 10px;"
+                    data-bs-toggle="modal" data-bs-target="#modalGastoPropio">
+                <i class="fa-solid fa-store text-warning"></i> Registrar Compra (Starbucks)
+            </button>
+          </div>
+        </div>
+
+        <div class="row mb-5">
+          <div class="col-12 col-md-6">
+            <!-- Tarjeta de saldo Premium -->
+            <div class="card-balance-premium p-4 text-white shadow-sm">
+              <h3 class="h6 text-uppercase text-white-50 tracking-wider mb-2" style="font-size: 11px; font-weight: 600;">
+                Cuenta de débito principal
+              </h3>
+              <p class="display-5 balance-amount mb-3">
+                $ <span th:text="${#numbers.formatDecimal(saldoTotal, 1, 'COMMA', 2, 'POINT')}">0.00</span> <span style="font-size: 1.5rem; color: var(--brand-accent); font-weight: 500;">MXN</span>
+              </p>
+              <p
+                class="small text-white-50 font-monospace mb-0"
+                style="letter-spacing: 0.5px;"
+                th:text="'CLABE: ' + ${cuentaClabe}"
+              >
+                CLABE: 000000000000000000
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLA DE MOVIMIENTOS RECIENTES -->
+        <h3 class="h5 fw-bold mb-3" style="color: var(--brand-dark);"><i class="fa-solid fa-list-ul me-2" style="color: var(--brand-accent);"></i>Movimientos recientes</h3>
+        <div class="table-responsive mb-5" style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+          <table class="table table-hover table-dashboard align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="text-center">Fecha</th>
+                <th class="text-center">Descripción</th>
+                <th class="text-center">Monto</th>
+                <th class="text-center">Tipo</th>
+                <th class="text-center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- bucle con thymeleaf -->
+              <tr th:each="movimiento : ${movimientos}">
+                <td class="text-center text-secondary" style="font-size: 13px;" th:text="${movimiento.fecha}">01/01/2026</td>
+                <td class="text-center fw-medium" th:text="${movimiento.descripcion}">Compra</td>
+                <td class="text-center fw-bold"
+                    th:classappend="${movimiento.cuentaOrigen == cuentaClabe} ? 'text-danger' : 'text-success'"
+                    th:text="${(movimiento.cuentaOrigen == cuentaClabe ? '-$' : '+$') + #numbers.formatDecimal(movimiento.monto, 1, 'COMMA', 2, 'POINT')}">
+                    $0.00
+                </td>
+                <td class="text-center text-secondary" th:text="${movimiento.tipo}">Deposito</td>
+                <td class="text-center">
+                  <span class="badge-status-dashboard"
+                        th:text="${movimiento.estadoMovimiento}"
+                        th:classappend="${movimiento.estadoMovimiento == 'AUTORIZADO' || movimiento.estadoMovimiento == 'COMPLETADO' || movimiento.estadoMovimiento == 'LIQUIDADO'} ? 'status-completed' : 'status-pending'">
+                    PENDIENTE
+                  </span>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(movimientos)}">
+                <td class="text-center text-muted py-4" colspan="5">Aún no registras transacciones en este periodo.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SECCIÓN DE GRÁFICAS DEL DASHBOARD -->
+        <div class="row g-4 mt-2">
+          <!-- GRAFICA 1: DISTRIBUCIÓN DE GASTOS (Existente) -->
+          <div class="col-12 col-md-6">
+            <div class="p-4" style="border: 1px solid var(--border-color); border-radius: 12px; background-color: #FFFFFF;">
+              <h3 class="h5 fw-bold mb-4" style="color: var(--brand-dark);"><i class="fa-solid fa-chart-pie me-2" style="color: var(--brand-accent);"></i>Distribución de gastos</h3>
+              <div style="position: relative; height:220px; width:100%;">
+                <canvas id="graficaGastos"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- GRAFICA 2: BARRAS COMPRAS VS INGRESOS (Nueva Solicitada) -->
+          <div class="col-12 col-md-6">
+            <div class="p-4" style="border: 1px solid var(--border-color); border-radius: 12px; background-color: #FFFFFF;">
+              <h3 class="h5 fw-bold mb-4" style="color: var(--brand-dark);"><i class="fa-solid fa-chart-column me-2" style="color: var(--brand-accent);"></i>Flujo Operativo</h3>
+              <div style="position: relative; height:220px; width:100%;">
+                <canvas id="graficaFlujo"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL REGISTRAR COMPRA / GASTO PROPIO -->
+        <div class="modal fade" id="modalGastoPropio" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4 text-start">
+              <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark">
+                  <i class="fa-solid fa-bag-shopping text-warning me-2"></i>Registrar Compra Propia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form th:action="@{/cliente/registrar-gasto}" method="post">
+                <div class="modal-body py-3">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold small mb-1">Establecimiento / Comercio</label>
+                    <input type="text" name="descripcion" class="form-control" placeholder="Ej. Starbucks, OXXO, Amazon" required />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold small mb-1">Monto de la Compra ($)</label>
+                    <input type="number" step="0.01" min="0.01" name="monto" class="form-control fw-bold text-danger" placeholder="120.00" required />
+                  </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                  <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn text-white fw-bold px-4" style="background-color: var(--brand-dark);">Pagar y Registrar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- FIN MODAL -->
+
+        <!-- Chart.js CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- Scripts para generar ambas gráficas -->
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            // 1. Gráfica de Rosca (Existente API)
+            fetch("/api/v1/finanzas/gastos-mes")
+              .then(response => {
+                if (!response.ok) 
+                  throw new Error("Error al obtener los datos de gastos");
+                return response.json();
+              })
+              .then(datosJson =>{
+                const etiqueta = datosJson.map(item => item.descripcion);
+                const valores = datosJson.map(item => item.monto);
+                const color = datosJson.map(item => item.colorHexadecimal);
+
+                const ctx1 = document.getElementById("graficaGastos").getContext('2d');
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                      labels: etiqueta,
+                      datasets: [{
+                        data: valores,
+                        backgroundColor: color,
+                        borderWidth: 2,
+                        hoverOffset: 4
+                      }]
+                    },
+                    options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { position: 'right' }
+                      }
+                    }
+                });
+              }).catch(err => console.error(err));
+
+            // 2. Gráfica de Barras para Flujo de Fondos (Nueva)
+            const ctx2 = document.getElementById("graficaFlujo").getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                    datasets: [
+                        {
+                            label: 'Ingresos / Depósitos',
+                            data: [3500, 2000, 4500, 1200],
+                            backgroundColor: '#10B981'
+                        },
+                        {
+                            label: 'Compras / Gastos',
+                            data: [1200, 850, 2100, 600],
+                            backgroundColor: '#EF4444'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+          });
+        </script>
+      </div>
+    </section>
+  </body>
+</html>
