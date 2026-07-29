@@ -69,6 +69,34 @@
             </div>
           </div>
           
+          <!-- Acciones Rápidas Inferiores -->
+          <h4 class="h5 fw-bold mt-5 mb-3" style="color: var(--brand-dark);">Acciones rápidas</h4>
+          <div class="row g-3">
+            <div class="col-12 col-sm-4">
+              <a href="/admin/dashboard" class="d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 text-dark">
+                <i class="bi bi-clipboard-data fs-3 mb-2 text-secondary"></i>
+                <span class="small fw-semibold">Panel ejecutivo</span>
+              </a>
+            </div>
+
+            <!-- BOTÓN AGREGADO PARA REPORTE PDF EJECUTIVO -->
+            <div class="col-12 col-sm-4">
+              <a href="/pdf/reporte-ejecutivo" target="_blank" class="d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 text-danger">
+                <i class="fa-solid fa-file-pdf fs-3 mb-2"></i>
+                <span class="small fw-semibold">Reporte Cartera PDF</span>
+              </a>
+            </div>
+
+            <div class="col-12 col-sm-4">
+              <form th:action="@{/logout}" method="post" class="h-100">
+                <button type="submit" class="w-100 d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 style-none" style="color: #991B1B;">
+                  <i class="bi bi-door-open fs-3 mb-2"></i>
+                  <span class="small fw-semibold">Cerrar sesión</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
           <!-- MODAL EDITAR EJECUTIVO -->
           <div class="modal fade" id="modalEditarEjecutivo" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -101,25 +129,6 @@
             </div>
           </div>
           <!-- FIN MODAL -->
-
-          <!-- Acciones Rápidas Inferiores -->
-          <h4 class="h5 fw-bold mt-5 mb-3" style="color: var(--brand-dark);">Acciones rápidas</h4>
-          <div class="row g-3">
-            <div class="col-6 col-sm-4">
-              <a href="/admin/dashboard" class="d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 text-dark">
-                <i class="bi bi-clipboard-data fs-3 mb-2 text-secondary"></i>
-                <span class="small fw-semibold">Panel ejecutivo</span>
-              </a>
-            </div>
-            <div class="col-6 col-sm-4">
-              <form th:action="@{/logout}" method="post" class="h-100">
-                <button type="submit" class="w-100 d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 style-none" style="color: #991B1B;">
-                  <i class="bi bi-door-open fs-3 mb-2"></i>
-                  <span class="small fw-semibold">Cerrar sesión</span>
-                </button>
-              </form>
-            </div>
-          </div>
           
         </div>
       </div>

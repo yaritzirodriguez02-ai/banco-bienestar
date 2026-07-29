@@ -236,29 +236,31 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge rounded-pill text-uppercase px-3 py-1.5 fw-semibold"
-                                          style="font-size: 11px;"
-                                          th:classappend="${solicitud.estado == 'APROBADO'} ? 'bg-success' : (${solicitud.estado == 'RECHAZADO'} ? 'bg-danger' : 'bg-warning text-dark')"
-                                          th:text="${solicitud.estado}">PENDIENTE</span>
-                                </td>
-                                <td class="text-center text-secondary small">
-                                    <div th:text="${#temporals.format(solicitud.fecha, 'dd/MM/yyyy')}">22/07/2026</div>
-                                    <div th:text="${#temporals.format(solicitud.fecha, 'HH:mm')}" class="text-muted" style="font-size: 11px;">10:16</div>
-                                </td>
-                                <td class="text-center">
-                                    <div th:if="${solicitud.estado == 'PENDIENTE'}" class="d-flex gap-2 justify-content-center">
-                                        <form th:action="@{/admin/aprobar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
-                                            <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
-                                                <i class="fa-solid fa-check"></i> Aprobar
-                                            </button>
-                                        </form>
-                                        <form th:action="@{/admin/rechazar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
-                                            <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
-                                                <i class="fa-solid fa-xmark"></i> Rechazar
-                                            </button>
-                                        </form>
-                                    </div>
-                                    <span th:if="${solicitud.estado != 'PENDIENTE'}" class="text-muted">—</span>
+    <div class="d-flex gap-2 justify-content-center align-items-center">
+        <!-- BOTÓN DESCARGAR VOUCHER / OFICIO EN PDF CON FIRMA -->
+        <a th:href="@{/pdf/voucher-credito/{id}(id=${solicitud.id})}" 
+           target="_blank" 
+           class="btn btn-outline-danger btn-sm rounded shadow-sm d-flex align-items-center gap-1" 
+           title="Descargar Oficio / Voucher PDF">
+            <i class="fa-solid fa-file-pdf"></i> Voucher
+        </a>
+
+        <!-- Botones Aprobar / Rechazar (si está Pendiente) -->
+        <div th:if="${solicitud.estado == 'PENDIENTE'}" class="d-flex gap-1">
+            <form th:action="@{/admin/aprobar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
+                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
+                    <i class="fa-solid fa-check"></i> Aprobar
+                </button>
+            </form>
+            <form th:action="@{/admin/rechazar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
+                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
+                    <i class="fa-solid fa-xmark"></i> Rechazar
+                </button>
+            </form>
+        </div>
+    </div>
+</td>
+ <span th:if="${solicitud.estado != 'PENDIENTE'}" class="text-muted">—</span>
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(solicitudes)}">
@@ -273,3 +275,4 @@
     </section>
 </body>
 </html>
+ 

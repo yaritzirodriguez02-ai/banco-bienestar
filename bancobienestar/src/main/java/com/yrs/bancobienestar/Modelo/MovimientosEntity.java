@@ -16,10 +16,10 @@ public class MovimientosEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "cuenta_origen", nullable = false, length = 18)
+    @Column(name = "cuenta_origen", nullable = false, length = 255)
     private String cuentaOrigen;
 
-    @Column(name = "cuenta_destino", nullable = false, length = 18)
+    @Column(name = "cuenta_destino", nullable = false, length = 255)
     private String cuentaDestino;
 
     @Column(nullable = false)
