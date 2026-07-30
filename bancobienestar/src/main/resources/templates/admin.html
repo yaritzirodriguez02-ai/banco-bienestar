@@ -235,32 +235,41 @@
                                         <span th:unless="${solicitud.firmaBase64}" class="text-muted small">—</span>
                                     </div>
                                 </td>
+                                <!-- ESTADO de la solicitud -->
                                 <td class="text-center">
-    <div class="d-flex gap-2 justify-content-center align-items-center">
-        <!-- BOTÓN DESCARGAR VOUCHER / OFICIO EN PDF CON FIRMA -->
-        <a th:href="@{/pdf/voucher-credito/{id}(id=${solicitud.id})}" 
-           target="_blank" 
-           class="btn btn-outline-danger btn-sm rounded shadow-sm d-flex align-items-center gap-1" 
-           title="Descargar Oficio / Voucher PDF">
-            <i class="fa-solid fa-file-pdf"></i> Voucher
-        </a>
+                                    <span class="badge rounded-pill text-uppercase px-3 py-1"
+                                          th:classappend="${solicitud.estado == 'APROBADO'} ? 'bg-success' : (${solicitud.estado == 'RECHAZADO'} ? 'bg-danger' : 'bg-warning text-dark')"
+                                          th:text="${solicitud.estado}">PENDIENTE</span>
+                                </td>
+                                <!-- FECHA -->
+                                <td class="text-center text-secondary" th:text="${#temporals.format(solicitud.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
+                                <!-- ACCIONES -->
+                                <td class="text-center">
+                                    <div class="d-flex gap-2 justify-content-center align-items-center flex-wrap">
+                                        <!-- BOTÓN DIRECTO DE ACCESO RÁPIDO: VOUCHER PDF -->
+                                        <a th:href="@{/pdf/voucher-credito/{id}(id=${solicitud.id})}" 
+                                           target="_blank" 
+                                           class="btn btn-danger btn-sm fw-semibold d-flex align-items-center gap-1 shadow-sm"
+                                           style="border-radius: 8px; font-size: 11px;"
+                                           title="Descargar Voucher PDF">
+                                            <i class="fa-solid fa-file-pdf"></i> Voucher
+                                        </a>
 
-        <!-- Botones Aprobar / Rechazar (si está Pendiente) -->
-        <div th:if="${solicitud.estado == 'PENDIENTE'}" class="d-flex gap-1">
-            <form th:action="@{/admin/aprobar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
-                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
-                    <i class="fa-solid fa-check"></i> Aprobar
-                </button>
-            </form>
-            <form th:action="@{/admin/rechazar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
-                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
-                    <i class="fa-solid fa-xmark"></i> Rechazar
-                </button>
-            </form>
-        </div>
-    </div>
-</td>
- <span th:if="${solicitud.estado != 'PENDIENTE'}" class="text-muted">—</span>
+                                        <!-- Botones Aprobar / Rechazar (solo Pendiente) -->
+                                        <div th:if="${solicitud.estado == 'PENDIENTE'}" class="d-flex gap-1">
+                                            <form th:action="@{/admin/aprobar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
+                                                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
+                                                    <i class="fa-solid fa-check"></i> Aprobar
+                                                </button>
+                                            </form>
+                                            <form th:action="@{/admin/rechazar-credito/{id}(id=${solicitud.id})}" method="post" class="m-0">
+                                                <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold d-flex align-items-center gap-1" style="font-size: 11px;">
+                                                    <i class="fa-solid fa-xmark"></i> Rechazar
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <span th:if="${solicitud.estado != 'PENDIENTE'}" class="text-muted small fst-italic">Procesado</span>
+                                    </div>
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(solicitudes)}">

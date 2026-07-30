@@ -206,11 +206,11 @@
                 <div class="modal-body py-3">
                   <div class="mb-3">
                     <label class="form-label fw-semibold small mb-1">Establecimiento / Comercio</label>
-                    <input type="text" name="descripcion" class="form-control" placeholder="Ej. Starbucks, OXXO, Amazon" required />
+                    <input type="text" name="descripcion" class="form-control" placeholder="Ej. Starbucks, OXXO, Amazon" value="Starbucks" required />
                   </div>
                   <div class="mb-3">
                     <label class="form-label fw-semibold small mb-1">Monto de la Compra ($)</label>
-                    <input type="number" step="0.01" min="0.01" name="monto" class="form-control fw-bold text-danger" placeholder="120.00" required />
+                    <input type="number" step="0.01" min="0.01" name="monto" class="form-control fw-bold text-danger" placeholder="120.00" value="150.00" required />
                   </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
@@ -263,33 +263,62 @@
                 });
               }).catch(err => console.error(err));
 
-            // 2. Gráfica de Barras para Flujo de Fondos (Nueva)
-            const ctx2 = document.getElementById("graficaFlujo").getContext('2d');
-            new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-                    datasets: [
-                        {
-                            label: 'Ingresos / Depósitos',
-                            data: [3500, 2000, 4500, 1200],
-                            backgroundColor: '#10B981'
-                        },
-                        {
-                            label: 'Compras / Gastos',
-                            data: [1200, 850, 2100, 600],
-                            backgroundColor: '#EF4444'
+            // 2. Gráfica de Barras para Flujo de Fondos (CON DATOS DESDE API)
+            fetch("/api/v1/finanzas/flujo-mensual")
+              .then(response => {
+                if (!response.ok)
+                  throw new Error("Error al obtener datos de flujo");
+                return response.json();
+              })
+              .then(flujoJson => {
+                const ctx2 = document.getElementById("graficaFlujo").getContext('2d');
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: flujoJson.etiquetas,
+                        datasets: [
+                            {
+                                label: 'Ingresos / Depósitos',
+                                data: flujoJson.ingresos,
+                                backgroundColor: '#10B981',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Compras / Gastos',
+                                data: flujoJson.gastos,
+                                backgroundColor: '#EF4444',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
                         }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
                     }
-                }
-            });
+                });
+              }).catch(err => {
+                console.error(err);
+                // Fallback: render con datos vacíos
+                const ctx2 = document.getElementById("graficaFlujo").getContext('2d');
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                        datasets: [
+                            { label: 'Ingresos / Depósitos', data: [0, 0, 0, 0], backgroundColor: '#10B981' },
+                            { label: 'Compras / Gastos', data: [0, 0, 0, 0], backgroundColor: '#EF4444' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+              });
           });
         </script>
       </div>

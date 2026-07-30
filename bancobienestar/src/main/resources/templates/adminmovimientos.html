@@ -71,7 +71,9 @@
                                 <span class="badge bg-light text-dark border fw-medium px-2 py-1" th:text="${movimiento.tipo}">Transferencia</span>
                             </td>
                             <td class="text-dark" th:text="${movimiento.descripcion}">Pago de servicios</td>
-                            <td class="text-end fw-bold text-dark" th:text="${'$' + #numbers.formatDecimal(movimiento.monto, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                            <td class="text-end fw-bold"
+                            th:classappend="${movimiento.tipo == 'Pago / Compra' || movimiento.tipo == 'Abono Crédito' || movimiento.tipo == 'Retiro'} ? 'text-danger' : 'text-dark'"
+                            th:text="${'$' + #numbers.formatDecimal(movimiento.monto, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
                             <td class="text-center">
                                 <span class="badge rounded-pill text-uppercase px-3 py-1.5"
                                       th:classappend="${movimiento.estadoMovimiento == 'AUTORIZADO' || movimiento.estadoMovimiento == 'APROBADO'} ? 'bg-success' : 'bg-warning text-dark'"
@@ -144,6 +146,9 @@
                                                             <option value="Deposito" th:selected="${movimiento.tipo == 'Deposito'}">Depósito</option>
                                                             <option value="Transferencia" th:selected="${movimiento.tipo == 'Transferencia'}">Transferencia</option>
                                                             <option value="Retiro" th:selected="${movimiento.tipo == 'Retiro'}">Retiro</option>
+                                                            <option value="Pago / Compra" th:selected="${movimiento.tipo == 'Pago / Compra'}">Pago / Compra</option>
+                                                            <option value="Abono Crédito" th:selected="${movimiento.tipo == 'Abono Crédito'}">Abono Crédito</option>
+                                                            <option value="Tranferencia" th:selected="${movimiento.tipo == 'Tranferencia'}">Transferencia (legacy)</option>
                                                         </select>
                                                     </div>
                                                 </div>

@@ -64,7 +64,7 @@ public class BancaService {
         movimiento.setMonto(monto);
         movimiento.setDescripcion(descripcion);
         movimiento.setFecha(LocalDate.now());
-        movimiento.setTipo("Tranferencia");
+        movimiento.setTipo("Transferencia");
         movimiento.setEstadoMovimiento("AUTORIZADO");
         movimientoRepository.save(movimiento);
     }

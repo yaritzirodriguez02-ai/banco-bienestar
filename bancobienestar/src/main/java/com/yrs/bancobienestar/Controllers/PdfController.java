@@ -47,7 +47,12 @@ public class PdfController {
         UsuarioEntity cliente = usuarioRepository.findByUserName(username)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
-        List<MovimientosEntity> movimientos = movimientoRepository.findAll(); // O filtrar por la cuenta del cliente
+        // Filtrar movimientos por la CLABE del cliente (cuenta origen o destino)
+        String clabe = cliente.getCuentas() != null && !cliente.getCuentas().isEmpty()
+            ? cliente.getCuentas().get(0).getClabe()
+            : "";
+        List<MovimientosEntity> movimientos = movimientoRepository
+            .findByCuentaOrigenOrCuentaDestinoOrderByFechaDesc(clabe, clabe);
 
         ByteArrayInputStream pdf = pdfService.generarEstadoCuentaPdf(cliente, movimientos);
 

@@ -17,4 +17,8 @@ public interface MovimientoCuentaRepository extends JpaRepository<MovimientosEnt
     // NUEVO MÉTODO (Solo se agrega al final para la gráfica del usuario logueado)
     @Query("SELECT m FROM MovimientosEntity m WHERE m.cuentaOrigen = :clabe AND MONTH(m.fecha) = MONTH(CURRENT_DATE) AND YEAR(m.fecha) = YEAR(CURRENT_DATE)")
     List<MovimientosEntity> findGastosDelMesByClabe(@Param("clabe") String clabe);
+
+    // NUEVO: Obtener ingresos del mes actual (donde la cuenta del cliente es el destino)
+    @Query("SELECT m FROM MovimientosEntity m WHERE m.cuentaDestino = :clabe AND MONTH(m.fecha) = MONTH(CURRENT_DATE) AND YEAR(m.fecha) = YEAR(CURRENT_DATE)")
+    List<MovimientosEntity> findIngresosDelMesByClabe(@Param("clabe") String clabe);
 }

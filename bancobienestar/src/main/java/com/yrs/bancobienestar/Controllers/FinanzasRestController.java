@@ -115,4 +115,72 @@ public class FinanzasRestController {
 
     }
 
+    // NUEVO ENDPOINT: Flujo mensual para la gráfica de barras (Ingresos vs Gastos)
+    @GetMapping("/flujo-mensual")
+    public Map<String, Object> obtenerFlujoMensual(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("Usuario no identificado");
+        }
+
+        String username = auth.getName();
+        UsuarioEntity usuario = usuarioRepository.findByUserName(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getCuentas() == null || usuario.getCuentas().isEmpty()) {
+            throw new RuntimeException("El usuario no tiene cuenta");
+        }
+
+        String clabe = usuario.getCuentas().get(0).getClabe();
+
+        // Usar solo movimientos del mes actual (consistente con findGastosDelMesByClabe)
+        List<MovimientosEntity> movimientosOrigen = movimientoCuentaRepository.findGastosDelMesByClabe(clabe);
+        
+        // También obtener ingresos del mes actual (depósitos a la cuenta del cliente)
+        // Reutilizamos el repositorio con una consulta similar pero para cuenta_destino
+        List<MovimientosEntity> movimientosDestino = movimientoCuentaRepository.findIngresosDelMesByClabe(clabe);
+
+        // Inicializar datos por semanas (4 semanas)
+        double[] ingresos = new double[4];
+        double[] gastos = new double[4];
+
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        int mesActual = hoy.getMonthValue();
+        int anioActual = hoy.getYear();
+
+        // Procesar gastos (cuentaOrigen = clabe)
+        for (MovimientosEntity m : movimientosOrigen) {
+            if (m.getFecha() == null) continue;
+            // Solo mes actual
+            if (m.getFecha().getMonthValue() != mesActual || m.getFecha().getYear() != anioActual) continue;
+
+            int day = m.getFecha().getDayOfMonth();
+            int semana = (day - 1) / 7;
+            if (semana > 3) semana = 3;
+
+            double monto = m.getMonto() != null ? m.getMonto() : 0.0;
+            gastos[semana] += monto;
+        }
+
+        // Procesar ingresos (cuentaDestino = clabe, excluyendo auto-referencias)
+        for (MovimientosEntity m : movimientosDestino) {
+            if (m.getFecha() == null) continue;
+            // Solo mes actual
+            if (m.getFecha().getMonthValue() != mesActual || m.getFecha().getYear() != anioActual) continue;
+
+            int day = m.getFecha().getDayOfMonth();
+            int semana = (day - 1) / 7;
+            if (semana > 3) semana = 3;
+
+            double monto = m.getMonto() != null ? m.getMonto() : 0.0;
+            ingresos[semana] += monto;
+        }
+
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("etiquetas", Arrays.asList("Semana 1", "Semana 2", "Semana 3", "Semana 4"));
+        resultado.put("ingresos", Arrays.asList(ingresos[0], ingresos[1], ingresos[2], ingresos[3]));
+        resultado.put("gastos", Arrays.asList(gastos[0], gastos[1], gastos[2], gastos[3]));
+
+        return resultado;
+    }
+
 }
