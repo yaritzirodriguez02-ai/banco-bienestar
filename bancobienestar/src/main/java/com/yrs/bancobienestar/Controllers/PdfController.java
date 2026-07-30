@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.yrs.bancobienestar.Modelo.MovimientosEntity;
 import com.yrs.bancobienestar.Modelo.SolicitudCreditoEntity;
 import com.yrs.bancobienestar.Modelo.UsuarioEntity;
+import com.yrs.bancobienestar.Service.BancaService;
 import com.yrs.bancobienestar.Repository.MovimientoCuentaRepository;
 import com.yrs.bancobienestar.Repository.SolicitudCreditoRepository;
 import com.yrs.bancobienestar.Repository.UsuarioRepository;
@@ -30,14 +31,17 @@ public class PdfController {
     private final UsuarioRepository usuarioRepository;
     private final MovimientoCuentaRepository movimientoRepository;
     private final SolicitudCreditoRepository solicitudCreditoRepository;
+    private final BancaService bancaService;
 
     public PdfController(PdfService pdfService, UsuarioRepository usuarioRepository,
                          MovimientoCuentaRepository movimientoRepository,
-                         SolicitudCreditoRepository solicitudCreditoRepository) {
+                         SolicitudCreditoRepository solicitudCreditoRepository,
+                         BancaService bancaService) {
         this.pdfService = pdfService;
         this.usuarioRepository = usuarioRepository;
         this.movimientoRepository = movimientoRepository;
         this.solicitudCreditoRepository = solicitudCreditoRepository;
+        this.bancaService = bancaService;
     }
 
     // PDF 1: Estado de cuenta del Cliente
@@ -99,6 +103,22 @@ public class PdfController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=Estado_Cuenta_" + cliente.getUserName() + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(pdf));
+    }
+
+    // PDF 3.5: Reporte General de Movimientos (para Ejecutivo)
+    @GetMapping("/reporte-movimientos")
+    public ResponseEntity<InputStreamResource> descargarReporteMovimientos() {
+        List<MovimientosEntity> movimientos = bancaService.todosMovimientos();
+
+        ByteArrayInputStream pdf = pdfService.generarReporteMovimientosPdf(movimientos);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=Reporte_General_Movimientos.pdf");
 
         return ResponseEntity.ok()
                 .headers(headers)

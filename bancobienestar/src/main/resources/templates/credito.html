@@ -124,15 +124,15 @@ th:replace="~{layout :: layout('Solicitud de credito', ~{::section})}">
         </div>
 
         <!-- ALERTA DE ERROR -->
-        <div th:if="${param.error}" class="alert alert-custom-danger d-flex align-items-center gap-2 mb-4 p-3 shadow-sm">
+        <div th:if="${error}" class="alert alert-custom-danger d-flex align-items-center gap-2 mb-4 p-3 shadow-sm">
             <i class="bi bi-exclamation-triangle-fill fs-5"></i>
-            <span th:text="${param.error}" class="fw-medium">Error en la solicitud</span>
+            <span th:text="${error}" class="fw-medium">Error en la solicitud</span>
         </div>
 
         <!-- ALERTA DE ÉXITO -->
-        <div th:if="${param.exito}" class="alert alert-custom-success d-flex align-items-center gap-2 mb-4 p-3 shadow-sm">
+        <div th:if="${exito}" class="alert alert-custom-success d-flex align-items-center gap-2 mb-4 p-3 shadow-sm">
             <i class="bi bi-check-circle-fill fs-5"></i>
-            <span th:text="${param.exito}" class="fw-medium">Operación completada con éxito</span>
+            <span th:text="${exito}" class="fw-medium">Operación completada con éxito</span>
         </div>
 
         <div class="row g-4">
@@ -244,6 +244,7 @@ th:replace="~{layout :: layout('Solicitud de credito', ~{::section})}">
                                             <form th:action="@{/credito/abonar}" method="post">
                                                 <div class="modal-body py-3">
                                                     <input type="hidden" name="creditoId" th:value="${sol.id}" />
+                                                    <input type="hidden" name="redirect" value="/credito" />
                                                     <div class="mb-3">
                                                         <label class="form-label fw-semibold small mb-1">Monto a Abonar ($)</label>
                                                         <input type="number" step="0.01" min="0.01" name="monto"

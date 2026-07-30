@@ -159,4 +159,50 @@ public class PdfService {
 
         return new ByteArrayInputStream(out.toByteArray());
     }
+
+    // 4. PDF Reporte General de Movimientos (para Ejecutivo)
+    public ByteArrayInputStream generarReporteMovimientosPdf(List<MovimientosEntity> movimientos) {
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            Paragraph titulo = new Paragraph("BANCO BIENESTAR - REPORTE GENERAL DE MOVIMIENTOS",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, new Color(34, 21, 51)));
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            document.add(titulo);
+            document.add(new Paragraph(" "));
+
+            PdfPTable table = new PdfPTable(7);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{1, 2, 3, 2, 3, 2, 2});
+
+            String[] headers = {"ID", "Fecha", "Cuenta Origen", "Cuenta Destino", "Descripción", "Monto", "Estado"};
+            for (String h : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                cell.setBackgroundColor(new Color(34, 21, 51));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cell);
+            }
+
+            for (MovimientosEntity m : movimientos) {
+                table.addCell(m.getId().toString());
+                table.addCell(m.getFecha() != null ? m.getFecha().toString() : "-");
+                table.addCell(m.getCuentaOrigen() != null ? m.getCuentaOrigen() : "-");
+                table.addCell(m.getCuentaDestino() != null ? m.getCuentaDestino() : "-");
+                table.addCell(m.getDescripcion() != null ? m.getDescripcion() : "-");
+                table.addCell("$" + String.format("%.2f", m.getMonto() != null ? m.getMonto() : 0.0));
+                table.addCell(m.getEstadoMovimiento() != null ? m.getEstadoMovimiento() : "-");
+            }
+
+            document.add(table);
+            document.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new ByteArrayInputStream(out.toByteArray());
+    }
 }

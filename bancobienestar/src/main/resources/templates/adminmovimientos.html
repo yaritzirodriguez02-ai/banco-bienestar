@@ -28,9 +28,16 @@
 
         <!-- Contenedor principal de la tabla -->
         <div class="bg-white rounded shadow-sm p-4 border">
-            <h3 class="h5 fw-bold mb-3 text-dark d-flex align-items-center gap-2">
-                <i class="bi bi-clock-history text-primary"></i> Historial Operativo
-            </h3>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h3 class="h5 fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                    <i class="bi bi-clock-history text-primary"></i> Historial Operativo
+                </h3>
+                <a href="/pdf/reporte-movimientos" target="_blank"
+                   class="btn btn-danger fw-semibold d-flex align-items-center gap-2 shadow-sm"
+                   style="border-radius: 10px;">
+                    <i class="fa-solid fa-file-pdf fs-5"></i> Descargar PDF General
+                </a>
+            </div>
 
             <!-- Alerta si no hay movimientos -->
             <div th:if="${#lists.isEmpty(movimientos)}" class="alert alert-info d-flex align-items-center gap-2 mb-0" role="alert">
