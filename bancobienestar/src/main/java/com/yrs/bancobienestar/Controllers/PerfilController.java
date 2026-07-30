@@ -1,5 +1,7 @@
 package com.yrs.bancobienestar.Controllers;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,16 +10,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.yrs.bancobienestar.Modelo.SolicitudCreditoEntity;
 import com.yrs.bancobienestar.Modelo.UsuarioEntity;
+import com.yrs.bancobienestar.Repository.SolicitudCreditoRepository;
 import com.yrs.bancobienestar.Repository.UsuarioRepository;
 
 @Controller
 public class PerfilController {
 
     private final UsuarioRepository usuarioRepository;
+    private final SolicitudCreditoRepository solicitudCreditoRepository;
 
-    public PerfilController(UsuarioRepository usuarioRepository) {
+    public PerfilController(UsuarioRepository usuarioRepository,
+                            SolicitudCreditoRepository solicitudCreditoRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.solicitudCreditoRepository = solicitudCreditoRepository;
     }
 
     @GetMapping("/perfil/ejecutivo")
@@ -76,11 +83,15 @@ public class PerfilController {
             clabe = usuario.getCuentas().get(0).getClabe();
         }
 
+        // Cargar créditos del cliente
+        List<SolicitudCreditoEntity> creditosCliente = solicitudCreditoRepository.findByUsuarioOrderByFechaDesc(usuario);
+
         modelo.addAttribute("nombreCompleto", usuario.getNombre());
         modelo.addAttribute("username", usuario.getUserName());
         modelo.addAttribute("telefono", usuario.getTelefono());
         modelo.addAttribute("domicilio", usuario.getDomicilio());
         modelo.addAttribute("clabe", clabe);
+        modelo.addAttribute("creditosCliente", creditosCliente);
 
         return "perfil-cliente";
     }

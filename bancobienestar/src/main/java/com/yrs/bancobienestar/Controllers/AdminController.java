@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.yrs.bancobienestar.Modelo.CuentaEntity;
+import com.yrs.bancobienestar.Modelo.MovimientosEntity;
 import com.yrs.bancobienestar.Modelo.SolicitudCreditoEntity;
 import com.yrs.bancobienestar.Modelo.UsuarioEntity;
+import com.yrs.bancobienestar.Repository.MovimientoCuentaRepository;
 import com.yrs.bancobienestar.Repository.SolicitudCreditoRepository;
 import com.yrs.bancobienestar.Repository.UsuarioRepository;
 import com.yrs.bancobienestar.Service.BancaService;
@@ -26,12 +28,15 @@ public class AdminController {
     private final BancaService bancaService;
     private final UsuarioRepository usuarioRepository;
     private final SolicitudCreditoRepository solicitudCreditoRepository;
+    private final MovimientoCuentaRepository movimientoCuentaRepository;
 
     public AdminController(BancaService bancaService, UsuarioRepository usuarioRepository,
-            SolicitudCreditoRepository solicitudCreditoRepository) {
+            SolicitudCreditoRepository solicitudCreditoRepository,
+            MovimientoCuentaRepository movimientoCuentaRepository) {
         this.bancaService = bancaService;
         this.usuarioRepository = usuarioRepository;
         this.solicitudCreditoRepository = solicitudCreditoRepository;
+        this.movimientoCuentaRepository = movimientoCuentaRepository;
     }
 
     private void cargarDatos(Model modelo) {
@@ -169,6 +174,37 @@ public class AdminController {
             redirectAttributes.addAttribute("error", "Error al actualizar estado: " + e.getMessage());
         }
         return "redirect:/admin/clientes";
+    }
+
+    // =======================================================
+    // NUEVO: Vista de movimientos de un cliente para el ejecutivo
+    // =======================================================
+    @GetMapping("/clientes/{id}/movimientos")
+    public String verMovimientosCliente(@PathVariable Long id, Model modelo, RedirectAttributes redirectAttributes) {
+        try {
+            UsuarioEntity cliente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+            String clabe = cliente.getCuentas() != null && !cliente.getCuentas().isEmpty()
+                ? cliente.getCuentas().get(0).getClabe()
+                : "";
+
+            List<MovimientosEntity> movimientos = movimientoCuentaRepository
+                .findByCuentaOrigenOrCuentaDestinoOrderByFechaDesc(clabe, clabe);
+
+            modelo.addAttribute("clienteMov", cliente);
+            modelo.addAttribute("movimientosCliente", movimientos);
+            modelo.addAttribute("clabeCliente", clabe);
+            modelo.addAttribute("seccion", "movimientos-cliente");
+
+            // También cargar datos normales para el menú
+            cargarDatos(modelo);
+
+            return "admin";
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("error", "Error al cargar movimientos: " + e.getMessage());
+            return "redirect:/admin/clientes";
+        }
     }
 
     // Eliminar un cliente de la base de datos

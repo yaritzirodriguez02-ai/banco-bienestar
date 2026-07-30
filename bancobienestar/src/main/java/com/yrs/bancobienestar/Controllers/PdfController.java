@@ -82,6 +82,30 @@ public class PdfController {
                 .body(new InputStreamResource(pdf));
     }
 
+    // PDF 3.5: Estado de cuenta de un cliente específico (para ejecutivo)
+    @GetMapping("/historial-cliente/{clienteId}")
+    public ResponseEntity<InputStreamResource> descargarHistorialClientePorId(@PathVariable Long clienteId) {
+        UsuarioEntity cliente = usuarioRepository.findById(clienteId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        String clabe = cliente.getCuentas() != null && !cliente.getCuentas().isEmpty()
+            ? cliente.getCuentas().get(0).getClabe()
+            : "";
+
+        List<MovimientosEntity> movimientos = movimientoRepository
+            .findByCuentaOrigenOrCuentaDestinoOrderByFechaDesc(clabe, clabe);
+
+        ByteArrayInputStream pdf = pdfService.generarEstadoCuentaPdf(cliente, movimientos);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=Estado_Cuenta_" + cliente.getUserName() + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(pdf));
+    }
+
     // PDF 3: Reporte Ejecutivo
     @GetMapping("/reporte-ejecutivo")
     public ResponseEntity<InputStreamResource> descargarReporteEjecutivo() {

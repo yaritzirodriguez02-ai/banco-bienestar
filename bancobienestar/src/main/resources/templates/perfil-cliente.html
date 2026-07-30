@@ -112,6 +112,86 @@
           </div>
           <!-- FIN MODAL -->
           
+          <!-- ============================================= -->
+          <!-- SECCIÓN DE CRÉDITOS Y ABONOS (NUEVA)         -->
+          <!-- ============================================= -->
+          <div class="mt-5">
+            <h4 class="h5 fw-bold mb-3" style="color: var(--brand-dark);">
+              <i class="fa-solid fa-credit-card me-2" style="color: var(--brand-accent);"></i>
+              Mis Créditos y Abonos
+            </h4>
+
+            <div th:if="${#lists.isEmpty(creditosCliente)}" class="alert alert-info d-flex align-items-center gap-2 rounded-3">
+              <i class="fa-solid fa-circle-info fs-5"></i>
+              <div>Aún no tienes solicitudes de crédito. <a href="/credito" class="fw-bold text-dark">Solicitar ahora</a></div>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(creditosCliente)}" class="d-flex flex-column gap-3">
+              <div th:each="cred : ${creditosCliente}" class="border rounded-4 p-3 shadow-sm" style="background-color: #FAFAFB;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <span class="fw-bold fs-5 text-dark" th:text="'$' + ${#numbers.formatDecimal(cred.montoSolicitado, 1, 'COMMA', 2, 'POINT')}">$0.00</span>
+                    <span class="text-muted small ms-2">- Folio #<span th:text="${cred.id}">1</span></span>
+                  </div>
+                  <span class="badge rounded-pill text-uppercase px-3 py-1"
+                        th:classappend="${cred.estado == 'APROBADO'} ? 'bg-success' : (${cred.estado == 'RECHAZADO'} ? 'bg-danger' : 'bg-warning text-dark')"
+                        th:text="${cred.estado}">PENDIENTE</span>
+                </div>
+                <div class="text-muted small mb-2" th:text="${#temporals.format(cred.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</div>
+
+                <!-- Firma digital guardada -->
+                <div th:if="${cred.firmaBase64}" class="text-center border-top pt-2 mb-2" style="border-top: 1px solid var(--border-color) !important;">
+                  <span class="small text-muted d-block text-start mb-1" style="font-size: 0.65rem;">FIRMA:</span>
+                  <img th:src="${cred.firmaBase64}" alt="Firma" class="img-fluid bg-white rounded border" style="max-height: 40px; object-fit: contain;">
+                </div>
+
+                <!-- BOTÓN ABONAR (solo créditos APROBADO) -->
+                <div th:if="${cred.estado == 'APROBADO'}" class="mt-2">
+                  <button type="button" class="btn btn-sm fw-semibold w-100 text-white shadow-sm"
+                          style="background-color: #10B981; border-radius: 8px;"
+                          data-bs-toggle="modal"
+                          th:data-bs-target="'#modalAbonarPerfil' + ${cred.id}">
+                    <i class="fa-solid fa-money-bill-transfer me-1"></i> Abonar a este crédito
+                  </button>
+                </div>
+
+                <!-- MODAL ABONAR -->
+                <div class="modal fade" th:id="'modalAbonarPerfil' + ${cred.id}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content text-start border-0 shadow rounded-4">
+                      <div class="modal-header border-bottom-0 pb-0">
+                        <h5 class="modal-title fw-bold text-dark fs-6">
+                          <i class="fa-solid fa-sack-dollar text-success me-2"></i>Abonar a Crédito #<span th:text="${cred.id}"></span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <form th:action="@{/credito/abonar}" method="post">
+                        <div class="modal-body py-3">
+                          <input type="hidden" name="creditoId" th:value="${cred.id}" />
+                          <div class="mb-3">
+                            <label class="form-label fw-semibold small mb-1">Monto a Abonar ($)</label>
+                            <input type="number" step="0.01" min="0.01" name="monto"
+                                   class="form-control fw-bold text-success" placeholder="0.00" required />
+                          </div>
+                          <p class="small text-muted mb-0">
+                            <i class="fa-solid fa-circle-info me-1"></i>
+                            El abono se descontará de tu saldo disponible.
+                          </p>
+                        </div>
+                        <div class="modal-footer border-top-0 pt-0">
+                          <button type="button" class="btn btn-light px-3" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="submit" class="btn text-white px-4 fw-bold" style="background-color: #10B981;">
+                            <i class="fa-solid fa-check me-1"></i> Abonar
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Acciones Rápidas Inferiores -->
           <h4 class="h5 fw-bold mt-5 mb-3" style="color: var(--brand-dark);">Acciones rápidas</h4>
           <div class="row g-3">
@@ -119,6 +199,12 @@
               <a href="/dashboard" class="d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 text-dark">
                 <i class="bi bi-speedometer2 fs-3 mb-2 text-secondary"></i>
                 <span class="small fw-semibold">Dashboard</span>
+              </a>
+            </div>
+            <div class="col-6 col-sm-4">
+              <a href="/credito" class="d-flex flex-column align-items-center justify-content-center p-3 text-decoration-none rounded text-center bg-light border h-100 text-dark">
+                <i class="bi bi-cash-coin fs-3 mb-2 text-success"></i>
+                <span class="small fw-semibold">Solicitar Crédito</span>
               </a>
             </div>
             <div class="col-6 col-sm-4">
